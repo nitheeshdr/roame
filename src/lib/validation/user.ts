@@ -42,6 +42,34 @@ export const updateProfileSchema = z.object({
     .optional(),
   bio: z.string().trim().max(280).optional(),
   city: z.string().trim().max(80).optional(),
+  avatarUrl: z.string().url().optional(),
   gender: z.enum(['MALE', 'FEMALE', 'NON_BINARY', 'PREFER_NOT_TO_SAY', 'OTHER']).optional(),
+  isPrivate: z.boolean().optional(),
 });
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+
+/** Replace the user's interests by slug. */
+export const updateInterestsSchema = z.object({
+  interests: z.array(z.string().min(1)).max(30),
+});
+export type UpdateInterestsInput = z.infer<typeof updateInterestsSchema>;
+
+/** User app settings. */
+export const updateSettingsSchema = z.object({
+  language: z.string().min(2).max(8).optional(),
+  theme: z.enum(['light', 'dark', 'system']).optional(),
+  discoveryRadiusKm: z.number().int().min(1).max(100).optional(),
+  showOnlineStatus: z.boolean().optional(),
+  allowMessagesFrom: z.enum(['everyone', 'following', 'none']).optional(),
+  pushEnabled: z.boolean().optional(),
+  emailEnabled: z.boolean().optional(),
+});
+export type UpdateSettingsInput = z.infer<typeof updateSettingsSchema>;
+
+/** Update the user's home location (PostGIS point). */
+export const updateLocationSchema = z.object({
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
+  city: z.string().trim().max(80).optional(),
+});
+export type UpdateLocationInput = z.infer<typeof updateLocationSchema>;

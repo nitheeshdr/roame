@@ -11,6 +11,7 @@ export type ErrorCode =
   | 'NOT_FOUND'
   | 'CONFLICT'
   | 'RATE_LIMITED'
+  | 'NOT_CONFIGURED'
   | 'INTERNAL';
 
 export abstract class AppError extends Error {
@@ -59,6 +60,15 @@ export class RateLimitError extends AppError {
 export class InternalError extends AppError {
   readonly code = 'INTERNAL' as const;
   readonly status = 500;
+}
+
+/**
+ * A capability that exists in the API surface but is not wired to a configured
+ * provider yet (e.g. Ola Maps / Razorpay / AI without credentials). Maps to 501.
+ */
+export class NotImplementedError extends AppError {
+  readonly code = 'NOT_CONFIGURED' as const;
+  readonly status = 501;
 }
 
 export interface ErrorResponseBody {

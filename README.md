@@ -103,10 +103,23 @@ pnpm test                  # Vitest (utils + validation)
 pnpm db:migrate / db:rls / db:seed / db:studio
 ```
 
+## API & Swagger
+
+The full REST API (~120 endpoints across auth, users, discovery, activities,
+participants, chat, social, reviews, safety, venues, bookings, payments,
+subscriptions, AI, analytics, and admin) is served under `/api`.
+
+- **Swagger UI:** http://localhost:3000/api/docs
+- **OpenAPI spec:** http://localhost:3000/api/openapi.json
+
+Auth uses the session cookie (web) or `Authorization: Bearer <token>` (mobile/API).
+Get a token from `POST /api/auth/otp/verify` (mock OTP is `000000`). Endpoints tagged
+**Maps / Payments / AI / Media** return `501 Not configured` until their provider
+credentials are set in `.env` — the adapters are wired and ready.
+
 ## Documentation
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - [docs/DATABASE.md](docs/DATABASE.md)
 - [docs/AUTH.md](docs/AUTH.md)
 - [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)
-# roame

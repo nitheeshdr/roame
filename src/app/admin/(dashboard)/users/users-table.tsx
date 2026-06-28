@@ -179,7 +179,7 @@ function RowActions({
             key={role}
             onClick={() =>
               mutate({
-                url: `/api/users/${user.id}/role`,
+                url: `/api/admin/users/${user.id}/role`,
                 method: 'PATCH',
                 body: { role },
                 success: `Role updated to ${role}.`,
@@ -197,7 +197,7 @@ function RowActions({
             key={status}
             onClick={() =>
               mutate({
-                url: `/api/users/${user.id}/status`,
+                url: `/api/admin/users/${user.id}/status`,
                 method: 'PATCH',
                 body: { status },
                 success: `Status set to ${status}.`,
@@ -213,7 +213,7 @@ function RowActions({
           <DropdownMenuItem
             onClick={() =>
               mutate({
-                url: `/api/users/${user.id}`,
+                url: `/api/admin/users/${user.id}`,
                 method: 'PATCH',
                 body: { status: 'ACTIVE' },
                 success: 'User restored.',
@@ -227,7 +227,7 @@ function RowActions({
             destructive
             onClick={() =>
               mutate({
-                url: `/api/users/${user.id}`,
+                url: `/api/admin/users/${user.id}`,
                 method: 'DELETE',
                 success: 'User soft-deleted.',
               })
