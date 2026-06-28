@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Next.js
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Production build
+/build
+
+# Environment
+.env
+.env*.local
+
+# Prisma generated client
+/prisma/generated/
+
+# Testing
+/coverage
+
+# Vercel
+.vercel
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
