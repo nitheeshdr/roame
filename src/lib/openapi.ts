@@ -4,9 +4,9 @@
  * rendered by Swagger UI at /api/docs.
  */
 
-type Method = 'get' | 'post' | 'patch' | 'delete';
+export type Method = 'get' | 'post' | 'patch' | 'delete';
 
-interface Ep {
+export interface Ep {
   method: Method;
   path: string; // OpenAPI path with {param}
   tag: string;
@@ -15,7 +15,7 @@ interface Ep {
   body?: boolean;
 }
 
-const ENDPOINTS: Ep[] = [
+export const ENDPOINTS: Ep[] = [
   // ── Auth ──────────────────────────────────────────────────────────────────
   { method: 'post', path: '/auth/google', tag: 'Auth', summary: 'Sign in with Google', body: true },
   { method: 'post', path: '/auth/oauth', tag: 'Auth', summary: 'Sign in with Google/Apple', body: true },

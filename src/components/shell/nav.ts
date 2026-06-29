@@ -4,6 +4,7 @@ import {
   ScrollText,
   CalendarRange,
   ShieldAlert,
+  Terminal,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -22,6 +23,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Overview', href: '/admin', icon: LayoutDashboard, enabled: true },
   { label: 'Users', href: '/admin/users', icon: Users, enabled: true },
   { label: 'Audit Logs', href: '/admin/audit-logs', icon: ScrollText, enabled: true },
+  { label: 'API Endpoints', href: '/admin/endpoints', icon: Terminal, enabled: true },
   { label: 'Activities', href: '/admin/activities', icon: CalendarRange, enabled: false },
   { label: 'Moderation', href: '/admin/moderation', icon: ShieldAlert, enabled: false },
 ];
