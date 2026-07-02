@@ -29,7 +29,7 @@ export const ENDPOINTS: Ep[] = [
   { method: 'post', path: '/auth/logout', tag: 'Auth', summary: 'Log out' },
   { method: 'get', path: '/auth/me', tag: 'Auth', summary: 'Current session principal', auth: 'user' },
 
-  // ── Usalso ers & Profile ─────────────────────────────────────────────────────────
+  // ── Users & Profile ─────────────────────────────────────────────────────────
   { method: 'get', path: '/users/me', tag: 'Users', summary: 'My full profile', auth: 'user' },
   { method: 'patch', path: '/users/me', tag: 'Users', summary: 'Update my profile', auth: 'user', body: true },
   { method: 'patch', path: '/users/avatar', tag: 'Users', summary: 'Set avatar URL', auth: 'user', body: true },
@@ -40,6 +40,7 @@ export const ENDPOINTS: Ep[] = [
   { method: 'get', path: '/users/{id}', tag: 'Users', summary: 'Public profile' },
   { method: 'get', path: '/users/{id}/activities', tag: 'Users', summary: "A user's public activities" },
   { method: 'get', path: '/users/{id}/reviews', tag: 'Users', summary: "A user's reviews" },
+  { method: 'get', path: '/interests', tag: 'Users', summary: 'Interests catalog' },
 
   // ── Discovery ─────────────────────────────────────────────────────────────
   { method: 'get', path: '/discovery/feed', tag: 'Discovery', summary: 'Personalized feed', auth: 'user' },

@@ -2,7 +2,8 @@ import * as React from 'react';
 import { ScrollView, Text, View, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronLeft, CalendarDays, MapPin, Users, MessageCircle, Bookmark } from 'lucide-react-native';
+import { ChevronLeft, CalendarDays, MapPin, Users, MessageCircle, Bookmark, ChevronRight, CheckCircle2 } from 'lucide-react-native';
+import * as Location from 'expo-location';
 import { Badge, Button, Avatar } from '@/components/ui';
 import { useSession } from '@/lib/session';
 import { roame } from '@/lib/api';
@@ -57,6 +58,26 @@ export default function ActivityDetail() {
     load();
   }, [load]);
 
+  async function checkin() {
+    try {
+      const { status: perm } = await Location.requestForegroundPermissionsAsync();
+      let lat: number | undefined;
+      let lng: number | undefined;
+      if (perm === 'granted') {
+        const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        lat = pos.coords.latitude;
+        lng = pos.coords.longitude;
+      }
+      const res = await roame.checkin(id, lat, lng);
+      Alert.alert(
+        'Checked in',
+        res.distanceM != null ? `You're ${res.distanceM}m from the venue. Have fun!` : 'Have fun!',
+      );
+    } catch (e) {
+      Alert.alert('Could not check in', e instanceof Error ? e.message : '');
+    }
+  }
+
   async function toggleJoin() {
     if (!user) {
       router.push('/sign-in');
@@ -109,10 +130,16 @@ export default function ActivityDetail() {
           {a.city || a.addressLine ? (
             <Row icon={<MapPin color={MUTED} size={18} />} text={[a.addressLine, a.city].filter(Boolean).join(', ')} />
           ) : null}
-          <Row
-            icon={<Users color={MUTED} size={18} />}
-            text={`${a._count.participants} going${a.capacity ? ` · ${a.capacity} spots` : ''}`}
-          />
+          <Pressable
+            onPress={() => router.push(`/participants/${a.id}`)}
+            className="flex-row items-center justify-between active:opacity-70"
+          >
+            <Row
+              icon={<Users color={MUTED} size={18} />}
+              text={`${a._count.participants} going${a.capacity ? ` · ${a.capacity} spots` : ''}`}
+            />
+            <ChevronRight color="#A1A1AA" size={18} />
+          </Pressable>
         </View>
 
         <View className="flex-row items-center gap-3">
@@ -131,13 +158,22 @@ export default function ActivityDetail() {
         ) : null}
 
         {joined ? (
-          <Pressable
-            onPress={() => router.push(`/chat/${a.id}`)}
-            className="flex-row items-center justify-center gap-2 rounded-2xl border border-border py-4 active:opacity-80"
-          >
-            <MessageCircle color="#059669" size={18} />
-            <Text className="text-[15px] font-semibold text-foreground">Open activity chat</Text>
-          </Pressable>
+          <View className="gap-3">
+            <Pressable
+              onPress={() => router.push(`/chat/${a.id}`)}
+              className="flex-row items-center justify-center gap-2 rounded-2xl border border-border py-4 active:opacity-80"
+            >
+              <MessageCircle color="#059669" size={18} />
+              <Text className="text-[15px] font-semibold text-foreground">Open activity chat</Text>
+            </Pressable>
+            <Pressable
+              onPress={checkin}
+              className="flex-row items-center justify-center gap-2 rounded-2xl border border-border py-4 active:opacity-80"
+            >
+              <CheckCircle2 color="#059669" size={18} />
+              <Text className="text-[15px] font-semibold text-foreground">Check in at venue</Text>
+            </Pressable>
+          </View>
         ) : null}
       </ScrollView>
 

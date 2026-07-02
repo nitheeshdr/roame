@@ -9,6 +9,7 @@ import {
   type TextInputProps,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ChevronLeft } from 'lucide-react-native';
 
 /** Self-contained premium components (NativeWind v4). No emoji, no gradients. */
 
@@ -120,6 +121,18 @@ export function ScreenHeader({ title, subtitle }: { title: string; subtitle?: st
     <View className="px-5 pb-3 pt-1">
       <Text className="text-[28px] font-bold tracking-tight text-foreground">{title}</Text>
       {subtitle ? <Text className="mt-1 text-[15px] text-muted">{subtitle}</Text> : null}
+    </View>
+  );
+}
+
+/** Back header for pushed sub-screens. */
+export function SubHeader({ title, onBack }: { title: string; onBack: () => void }) {
+  return (
+    <View className="flex-row items-center gap-1 px-3 py-2">
+      <Pressable onPress={onBack} className="h-10 w-10 items-center justify-center">
+        <ChevronLeft color="#111111" size={24} strokeWidth={2} />
+      </Pressable>
+      <Text className="text-[20px] font-bold tracking-tight text-foreground">{title}</Text>
     </View>
   );
 }
