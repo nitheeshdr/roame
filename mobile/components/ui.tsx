@@ -1,16 +1,27 @@
 import * as React from 'react';
-import { Pressable, Text, View, ActivityIndicator, type PressableProps } from 'react-native';
-import { cssInterop } from 'nativewind';
+import {
+  ActivityIndicator,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+  type PressableProps,
+  type TextInputProps,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-/**
- * Small self-contained premium component set (NativeWind v4). Neutral surfaces,
- * emerald primary, blue accent. No emoji, no gradients.
- */
+/** Self-contained premium components (NativeWind v4). No emoji, no gradients. */
+
+export function Screen({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <SafeAreaView style={{ flex: 1 }} className="bg-background" edges={['top']}>
+      <View className={`flex-1 ${className}`}>{children}</View>
+    </SafeAreaView>
+  );
+}
 
 export function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return (
-    <View className={`rounded-2xl border border-border bg-surface p-4 ${className}`}>{children}</View>
-  );
+  return <View className={`rounded-2xl border border-border bg-surface p-4 ${className}`}>{children}</View>;
 }
 
 export function Badge({ label, className = '' }: { label: string; className?: string }) {
@@ -21,7 +32,26 @@ export function Badge({ label, className = '' }: { label: string; className?: st
   );
 }
 
-type ButtonVariant = 'primary' | 'outline';
+export function Avatar({ name, size = 40 }: { name?: string | null; size?: number }) {
+  const initials = (name ?? '?')
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p.charAt(0).toUpperCase())
+    .join('');
+  return (
+    <View
+      className="items-center justify-center rounded-full bg-subtle"
+      style={{ width: size, height: size }}
+    >
+      <Text className="font-semibold text-foreground" style={{ fontSize: size * 0.4 }}>
+        {initials || '?'}
+      </Text>
+    </View>
+  );
+}
+
+type ButtonVariant = 'primary' | 'outline' | 'ghost';
 export function Button({
   label,
   variant = 'primary',
@@ -37,20 +67,19 @@ export function Button({
   onPress?: PressableProps['onPress'];
   className?: string;
 }) {
-  const base =
-    'h-14 flex-row items-center justify-center rounded-2xl px-6 active:opacity-90';
   const styles =
     variant === 'primary'
       ? 'bg-primary'
-      : 'border border-border bg-surface';
+      : variant === 'outline'
+        ? 'border border-border bg-surface'
+        : '';
   const textStyles = variant === 'primary' ? 'text-primary-foreground' : 'text-foreground';
-  const isOff = disabled || loading;
-
+  const off = disabled || loading;
   return (
     <Pressable
       onPress={onPress}
-      disabled={isOff}
-      className={`${base} ${styles} ${isOff ? 'opacity-50' : ''} ${className}`}
+      disabled={off}
+      className={`h-14 flex-row items-center justify-center rounded-2xl px-6 active:opacity-90 ${styles} ${off ? 'opacity-50' : ''} ${className}`}
     >
       {loading ? (
         <ActivityIndicator color={variant === 'primary' ? '#FFFFFF' : '#111111'} />
@@ -61,8 +90,36 @@ export function Button({
   );
 }
 
-/** Allow className on lucide-react-native icons. */
-export function enableIconClassName(Icon: React.ComponentType<Record<string, unknown>>) {
-  cssInterop(Icon, { className: { target: 'style', nativeStyleToProp: { color: true } } });
-  return Icon;
+export function Field({
+  label,
+  ...props
+}: TextInputProps & { label: string }) {
+  return (
+    <View className="gap-2">
+      <Text className="text-[13px] font-medium text-foreground">{label}</Text>
+      <TextInput
+        placeholderTextColor="#A1A1AA"
+        className="h-12 rounded-xl border border-border bg-surface px-3 text-[16px] text-foreground"
+        {...props}
+      />
+    </View>
+  );
+}
+
+export function EmptyState({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <View className="flex-1 items-center justify-center px-8 py-16">
+      <Text className="text-center text-[17px] font-semibold text-foreground">{title}</Text>
+      {subtitle ? <Text className="mt-1 text-center text-[14px] text-muted">{subtitle}</Text> : null}
+    </View>
+  );
+}
+
+export function ScreenHeader({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <View className="px-5 pb-3 pt-1">
+      <Text className="text-[28px] font-bold tracking-tight text-foreground">{title}</Text>
+      {subtitle ? <Text className="mt-1 text-[15px] text-muted">{subtitle}</Text> : null}
+    </View>
+  );
 }

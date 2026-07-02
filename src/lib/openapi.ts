@@ -22,10 +22,14 @@ export const ENDPOINTS: Ep[] = [
   { method: 'post', path: '/auth/otp/request', tag: 'Auth', summary: 'Request a phone OTP', body: true },
   { method: 'post', path: '/auth/otp/verify', tag: 'Auth', summary: 'Verify a phone OTP, returns token', body: true },
   { method: 'post', path: '/auth/admin-login', tag: 'Auth', summary: 'Admin email/password login', body: true },
+  { method: 'post', path: '/auth/login', tag: 'Auth', summary: 'Email/password login (returns token)', body: true },
+  { method: 'post', path: '/auth/signup', tag: 'Auth', summary: 'Email/password signup (returns token)', body: true },
+  { method: 'post', path: '/auth/forgot-password', tag: 'Auth', summary: 'Request a password reset', body: true },
+  { method: 'post', path: '/auth/reset-password', tag: 'Auth', summary: 'Reset password with a token', body: true },
   { method: 'post', path: '/auth/logout', tag: 'Auth', summary: 'Log out' },
   { method: 'get', path: '/auth/me', tag: 'Auth', summary: 'Current session principal', auth: 'user' },
 
-  // ── Users & Profile ─────────────────────────────────────────────────────────
+  // ── Usalso ers & Profile ─────────────────────────────────────────────────────────
   { method: 'get', path: '/users/me', tag: 'Users', summary: 'My full profile', auth: 'user' },
   { method: 'patch', path: '/users/me', tag: 'Users', summary: 'Update my profile', auth: 'user', body: true },
   { method: 'patch', path: '/users/avatar', tag: 'Users', summary: 'Set avatar URL', auth: 'user', body: true },
@@ -45,6 +49,7 @@ export const ENDPOINTS: Ep[] = [
   { method: 'get', path: '/discovery/categories', tag: 'Discovery', summary: 'Category catalog' },
   { method: 'get', path: '/discovery/search', tag: 'Discovery', summary: 'Search activities' },
   { method: 'get', path: '/discovery/cities', tag: 'Discovery', summary: 'Cities with activity counts' },
+  { method: 'get', path: '/discovery/map', tag: 'Discovery', summary: 'Activity map points (lat/lng)' },
 
   // ── Activities ────────────────────────────────────────────────────────────
   { method: 'get', path: '/activities', tag: 'Activities', summary: 'List activities' },

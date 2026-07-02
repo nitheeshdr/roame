@@ -206,6 +206,28 @@ export const activityService = {
     return this.list({ ...query, q: query.q, status: 'PUBLISHED' } as ListActivitiesQuery);
   },
 
+  /** Map points: published public activities with coordinates (for a map view). */
+  async mapPoints(limit = 300) {
+    const rows = await prisma.$queryRawUnsafe<
+      { id: string; title: string; city: string | null; lat: number; lng: number; participants: number }[]
+    >(
+      `SELECT a.id, a.title, a.city,
+              ST_Y(a."location"::geometry) AS lat,
+              ST_X(a."location"::geometry) AS lng,
+              (SELECT COUNT(*)::int FROM activity_participants p
+                 WHERE p."activityId" = a.id AND p.status = 'JOINED') AS participants
+         FROM activities a
+        WHERE a."deletedAt" IS NULL
+          AND a.status = 'PUBLISHED'
+          AND a.visibility = 'PUBLIC'
+          AND a."location" IS NOT NULL
+        ORDER BY a."startsAt" ASC
+        LIMIT $1`,
+      limit,
+    );
+    return rows;
+  },
+
   /** Trending = most joins/saves among upcoming public activities. */
   async trending(page: number, pageSize: number) {
     const data = await prisma.activity.findMany({

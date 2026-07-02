@@ -13,7 +13,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.roame.mobile"
+      "bundleIdentifier": "app.roame.mobile",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Roame uses your location to show activities near you."
+      }
     },
     "android": {
       "package": "app.roame.mobile"
@@ -21,7 +24,11 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-location",
+        { "locationWhenInUsePermission": "Roame uses your location to show activities near you." }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

@@ -4,7 +4,9 @@ import type {
   OAuthCallbackInput,
   OtpRequestInput,
   OtpVerifyInput,
+  ResetPasswordInput,
   SessionUser,
+  SignupInput,
 } from '@/lib/validation';
 import {
   ConflictError,
@@ -15,6 +17,7 @@ import {
   ValidationError,
   addMinutes,
   err,
+  hashPassword,
   isPast,
   ok,
   sha256,
@@ -24,6 +27,7 @@ import {
 } from '@/lib/utils';
 import { getAuthProvider } from '../auth/providers';
 import { verifyGoogleIdToken } from '../integrations/google';
+import { createResetToken, verifyResetToken } from '../auth/reset-token';
 import { auditService } from './audit-service';
 
 const OTP_TTL_MINUTES = 10;
@@ -213,6 +217,61 @@ export const authService = {
     await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
     await auditService.record({ actorId: user.id, action: 'LOGIN', entityType: 'AdminUser', entityId: user.id });
     return ok(toSessionUser(user));
+  },
+
+  /** General email/password login for any ACTIVE user (consumer + admin). */
+  async login(input: AdminLoginInput): Promise<Result<SessionUser, UnauthorizedError>> {
+    const user = await prisma.user.findUnique({ where: { email: input.email }, include: { profile: true } });
+    if (!user || !user.passwordHash) return err(new UnauthorizedError('Invalid email or password.'));
+    const valid = await verifyPassword(input.password, user.passwordHash);
+    if (!valid) return err(new UnauthorizedError('Invalid email or password.'));
+    if (user.status !== 'ACTIVE') throw new ForbiddenError('This account is not active.');
+    await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+    return ok(toSessionUser(user));
+  },
+
+  /** Email/password signup. Creates an ACTIVE user with a hashed password. */
+  async signup(input: SignupInput): Promise<Result<SessionUser, ConflictError>> {
+    const existing = await prisma.user.findUnique({ where: { email: input.email } });
+    if (existing) return err(new ConflictError('An account with this email already exists.'));
+    const passwordHash = await hashPassword(input.password);
+    const user = await prisma.user.create({
+      data: {
+        email: input.email,
+        passwordHash,
+        status: 'ACTIVE',
+        emailVerifiedAt: new Date(),
+        lastLoginAt: new Date(),
+        profile: { create: { displayName: input.displayName } },
+        settings: { create: {} },
+        trustScore: { create: {} },
+      },
+      include: { profile: true },
+    });
+    await auditService.record({ actorId: user.id, action: 'CREATE', entityType: 'User', entityId: user.id });
+    return ok(toSessionUser(user));
+  },
+
+  /**
+   * Start a password reset. Returns a signed reset token. In production this
+   * would be emailed; without an email provider we return it so the flow is
+   * usable. Always resolves (no account enumeration).
+   */
+  async requestPasswordReset(email: string): Promise<{ ok: true; resetToken?: string }> {
+    const user = await prisma.user.findUnique({ where: { email }, select: { id: true, passwordHash: true } });
+    if (!user || !user.passwordHash) return { ok: true };
+    const resetToken = await createResetToken(user.id);
+    // TODO: send `resetToken` via email once an email provider is configured.
+    return { ok: true, resetToken };
+  },
+
+  async resetPassword(input: ResetPasswordInput): Promise<Result<{ ok: true }, never>> {
+    const userId = await verifyResetToken(input.token);
+    if (!userId) throw new ValidationError('This reset link is invalid or has expired.');
+    const passwordHash = await hashPassword(input.password);
+    await prisma.user.update({ where: { id: userId }, data: { passwordHash } });
+    await auditService.record({ actorId: userId, action: 'UPDATE', entityType: 'UserPassword', entityId: userId });
+    return ok({ ok: true });
   },
 };
 

@@ -35,6 +35,24 @@ export const adminLoginSchema = z.object({
 });
 export type AdminLoginInput = z.infer<typeof adminLoginSchema>;
 
+/** ── Email/password signup + reset ──────────────────────────────────────── */
+
+export const signupSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  displayName: z.string().trim().min(1).max(80),
+});
+export type SignupInput = z.infer<typeof signupSchema>;
+
+export const forgotPasswordSchema = z.object({ email: emailSchema });
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+});
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+
 /** ── Session shape carried in the auth cookie / returned to clients ─────── */
 
 export const sessionUserSchema = z.object({
