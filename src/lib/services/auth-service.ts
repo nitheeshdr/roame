@@ -23,6 +23,7 @@ import {
   type Result,
 } from '@/lib/utils';
 import { getAuthProvider } from '../auth/providers';
+import { verifyGoogleIdToken } from '../integrations/google';
 import { auditService } from './audit-service';
 
 const OTP_TTL_MINUTES = 10;
@@ -147,6 +148,43 @@ export const authService = {
         include: { profile: true },
       });
       return created;
+    });
+
+    await auditService.record({ actorId: user.id, action: 'LOGIN', entityType: 'User', entityId: user.id });
+    return ok(toSessionUser(user));
+  },
+
+  /** Real Google Sign-In: verify the id_token with Google, then link/create the user. */
+  async googleLogin(idToken: string): Promise<Result<SessionUser, never>> {
+    const identity = await verifyGoogleIdToken(idToken);
+
+    const user = await prisma.$transaction(async (tx) => {
+      const account = await tx.account.findUnique({
+        where: {
+          provider_providerAccountId: { provider: 'GOOGLE', providerAccountId: identity.providerAccountId },
+        },
+        include: { user: { include: { profile: true } } },
+      });
+      if (account) {
+        await tx.user.update({ where: { id: account.user.id }, data: { lastLoginAt: new Date() } });
+        return account.user;
+      }
+
+      return tx.user.create({
+        data: {
+          email: identity.email,
+          status: 'ACTIVE',
+          emailVerifiedAt: identity.email ? new Date() : null,
+          lastLoginAt: new Date(),
+          profile: {
+            create: { displayName: identity.name ?? 'New Roamer', avatarUrl: identity.picture },
+          },
+          settings: { create: {} },
+          trustScore: { create: {} },
+          accounts: { create: { provider: 'GOOGLE', providerAccountId: identity.providerAccountId } },
+        },
+        include: { profile: true },
+      });
     });
 
     await auditService.record({ actorId: user.id, action: 'LOGIN', entityType: 'User', entityId: user.id });

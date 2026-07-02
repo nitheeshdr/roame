@@ -28,6 +28,17 @@ next-env.d.ts
 npm-debug.log*
 pnpm-debug.log*
 
+# Expo (mobile)
+.expo/
+mobile/.expo/
+mobile/ios/
+mobile/android/
+expo-env.d.ts
+
+# Agent tooling / skills
+.agents/
+skills-lock.json
+
 # OS / editor
 .DS_Store
 .idea/
