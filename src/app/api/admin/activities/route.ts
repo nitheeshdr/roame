@@ -7,7 +7,6 @@ export async function GET(request: Request) {
   return apiHandler(async () => {
     await requireModerator(request);
     const query = parseQuery(request, listActivitiesQuerySchema);
-    // Admin view ignores the public visibility/status narrowing where possible.
-    return activityService.list(query);
+    return activityService.adminList(query);
   });
 }

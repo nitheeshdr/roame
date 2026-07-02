@@ -129,6 +129,35 @@ export const activityService = {
     return buildPageResult(data, total, query);
   },
 
+  /** Admin/moderator listing: all non-deleted activities, any status/visibility. */
+  async adminList(query: ListActivitiesQuery) {
+    const where: Prisma.ActivityWhereInput = {
+      deletedAt: null,
+      ...(query.status ? { status: query.status } : {}),
+      ...(query.categoryId ? { categoryId: query.categoryId } : {}),
+      ...(query.city ? { city: { equals: query.city, mode: 'insensitive' } } : {}),
+      ...(query.q
+        ? {
+            OR: [
+              { title: { contains: query.q, mode: 'insensitive' } },
+              { description: { contains: query.q, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
+    const [data, total] = await Promise.all([
+      prisma.activity.findMany({
+        where,
+        include: cardInclude,
+        orderBy: { createdAt: 'desc' },
+        skip: (query.page - 1) * query.pageSize,
+        take: query.pageSize,
+      }),
+      prisma.activity.count({ where }),
+    ]);
+    return buildPageResult(data, total, query);
+  },
+
   async mine(userId: string, kind: 'all' | 'hosted' | 'joined', page: number, pageSize: number) {
     let where: Prisma.ActivityWhereInput;
     if (kind === 'hosted') {

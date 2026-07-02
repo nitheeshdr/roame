@@ -7,7 +7,14 @@ import { Compass, Lock } from 'lucide-react';
 import { cn } from '@/components/ui';
 import { NAV_ITEMS } from './nav';
 
-export function Sidebar({ className }: { className?: string }) {
+export function Sidebar({
+  className,
+  onNavigate,
+}: {
+  className?: string;
+  /** Called when a nav link is tapped — used by the mobile drawer to close. */
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
 
   return (
@@ -17,7 +24,7 @@ export function Sidebar({ className }: { className?: string }) {
         className,
       )}
     >
-      <Link href="/admin" className="mb-8 flex items-center gap-2 px-2">
+      <Link href="/admin" onClick={onNavigate} className="mb-8 flex items-center gap-2 px-2">
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Compass className="h-4 w-4" />
         </span>
@@ -53,6 +60,7 @@ export function Sidebar({ className }: { className?: string }) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onNavigate}
               className={cn(
                 'flex items-center gap-3 rounded-md px-3 py-2 text-caption font-medium transition-colors',
                 active

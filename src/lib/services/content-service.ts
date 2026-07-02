@@ -30,6 +30,9 @@ export const contentService = {
   faqs() {
     return prisma.faq.findMany({ where: { isActive: true }, orderBy: { sortOrder: 'asc' } });
   },
+  adminFaqs() {
+    return prisma.faq.findMany({ orderBy: [{ category: 'asc' }, { sortOrder: 'asc' }] });
+  },
   announcements() {
     return prisma.announcement.findMany({
       where: { isPublished: true, deletedAt: null },

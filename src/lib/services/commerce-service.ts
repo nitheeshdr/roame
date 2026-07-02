@@ -33,6 +33,26 @@ export const venueService = {
     return venue;
   },
 
+  /** Admin listing: all non-deleted venues regardless of status. */
+  async adminList(query: ListVenuesQuery) {
+    const where: Prisma.VenueWhereInput = {
+      deletedAt: null,
+      ...(query.city ? { city: { equals: query.city, mode: 'insensitive' } } : {}),
+      ...(query.q ? { name: { contains: query.q, mode: 'insensitive' } } : {}),
+    };
+    const [data, total] = await Promise.all([
+      prisma.venue.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (query.page - 1) * query.pageSize,
+        take: query.pageSize,
+        include: { owner: { select: { profile: { select: { displayName: true } } } } },
+      }),
+      prisma.venue.count({ where }),
+    ]);
+    return buildPageResult(data, total, query);
+  },
+
   async create(ownerId: string, input: CreateVenueInput) {
     const { location, ...data } = input;
     const venue = await prisma.venue.create({ data: { ...data, ownerId, status: 'PENDING' } });
